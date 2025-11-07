@@ -57,47 +57,111 @@ places = [
         "name": "Cheonggyecheon Stream (청계천)",
         "lat": 37.5687, "lon": 127.0038,
         "desc": "복원된 도심 하천. 도심 속 산책로로 인기."
+    },# app.py
+import streamlit as st
+from streamlit_folium import st_folium
+import folium
+
+st.set_page_config(page_title="서울 인기 관광지 Top10", layout="wide")
+
+st.title("🏙️ 서울 인기 관광지 Top 10 지도")
+st.markdown("""
+외국인들이 가장 많이 방문하는 서울의 대표 명소 10곳을 보여줍니다.  
+각 명소는 왜 유명한지, 그리고 **가장 가까운 지하철역**도 함께 안내합니다.
+""")
+
+# 관광지 데이터
+places = [
+    {
+        "name": "경복궁 (Gyeongbokgung Palace)",
+        "lat": 37.580467, "lon": 126.976944,
+        "desc": "조선시대의 법궁이자 가장 큰 궁궐로, 수문장 교대식이 인기 있는 관광 포인트입니다.",
+        "nearest_station": "경복궁역 (3호선)"
     },
     {
-        "name": "Lotte World Tower / Jamsil (롯데월드타워)",
+        "name": "창덕궁 (Changdeokgung Palace)",
+        "lat": 37.579254, "lon": 126.992150,
+        "desc": "유네스코 세계문화유산으로 지정된 궁궐. 후원(비원)이 특히 아름답기로 유명합니다.",
+        "nearest_station": "안국역 (3호선)"
+    },
+    {
+        "name": "북촌 한옥마을 (Bukchon Hanok Village)",
+        "lat": 37.5830, "lon": 126.9869,
+        "desc": "전통 한옥이 고스란히 보존된 마을로, 한국 전통과 현대가 공존하는 감성 명소입니다.",
+        "nearest_station": "안국역 (3호선)"
+    },
+    {
+        "name": "N서울타워 (N Seoul Tower)",
+        "lat": 37.551170, "lon": 126.988228,
+        "desc": "남산 정상에 위치한 서울의 대표 전망대. '사랑의 자물쇠'로도 유명합니다.",
+        "nearest_station": "명동역 (4호선)"
+    },
+    {
+        "name": "명동 쇼핑거리 (Myeongdong)",
+        "lat": 37.5600, "lon": 126.9858,
+        "desc": "패션, 화장품, 길거리 음식 등 외국인 관광객이 가장 많이 찾는 쇼핑 거리입니다.",
+        "nearest_station": "명동역 (4호선)"
+    },
+    {
+        "name": "인사동 (Insadong)",
+        "lat": 37.5729, "lon": 126.9859,
+        "desc": "전통 공예품, 찻집, 골동품 상점이 즐비한 거리로 한국 문화체험에 제격입니다.",
+        "nearest_station": "종각역 (1호선) / 안국역 (3호선)"
+    },
+    {
+        "name": "홍대 (Hongdae)",
+        "lat": 37.55528, "lon": 126.92333,
+        "desc": "젊음의 거리로, 라이브 공연·거리예술·카페문화가 발달해 있습니다.",
+        "nearest_station": "홍대입구역 (2호선)"
+    },
+    {
+        "name": "동대문디자인플라자 (DDP)",
+        "lat": 37.5669, "lon": 127.0094,
+        "desc": "자하 하디드의 미래형 건축물로, 야시장과 패션몰이 어우러진 복합문화공간입니다.",
+        "nearest_station": "동대문역사문화공원역 (2·4·5호선)"
+    },
+    {
+        "name": "청계천 (Cheonggyecheon Stream)",
+        "lat": 37.5687, "lon": 127.0038,
+        "desc": "도심 속 복원된 하천으로, 낮에는 산책로·밤에는 조명이 아름다운 명소입니다.",
+        "nearest_station": "종각역 (1호선)"
+    },
+    {
+        "name": "롯데월드타워 (Lotte World Tower)",
         "lat": 37.512779, "lon": 127.102570,
-        "desc": "초고층 전망대(Seoul Sky)와 쇼핑몰, 아쿠아리움 등."
+        "desc": "123층 초고층 빌딩으로, 전망대 ‘Seoul Sky’와 쇼핑몰, 아쿠아리움이 함께 있습니다.",
+        "nearest_station": "잠실역 (2·8호선)"
     }
 ]
 
-# 지도 초기 중심값: 서울 중앙 근처
-m = folium.Map(location=[37.5665, 126.9780], zoom_start=12)
+# 지도 생성 (중심은 서울 시청 근처)
+m = folium.Map(location=[37.5665, 126.9780], zoom_start=12, tiles="CartoDB positron")
 
-# 마커 추가
+# 마커 스타일: 색상/아이콘 변경
 for p in places:
-    popup_html = f"<b>{p['name']}</b><br>{p['desc']}"
+    popup_html = f"""
+    <div style='width:230px'>
+        <h4 style='margin-bottom:5px;'>{p['name']}</h4>
+        <p style='font-size:13px;'>{p['desc']}</p>
+        <b>🚇 가장 가까운 역:</b> {p['nearest_station']}
+    </div>
+    """
     folium.Marker(
         location=[p['lat'], p['lon']],
         popup=folium.Popup(popup_html, max_width=300),
         tooltip=p['name'],
-        icon=folium.Icon(color="blue", icon="info-sign")
+        icon=folium.Icon(color="red", icon="star")
     ).add_to(m)
 
-# 왼쪽 사이드바: 리스트와 선택 기능
-st.sidebar.header("장소 목록")
-selected = st.sidebar.selectbox("장소 선택 (지도 중심 이동):", ["전체 보기"] + [p["name"] for p in places])
-
-if selected != "전체 보기":
-    # 선택한 장소를 중심으로 지도 재생성 (더 크게 줌)
-    sel = next(p for p in places if p["name"] == selected)
-    m = folium.Map(location=[sel["lat"], sel["lon"]], zoom_start=15)
-    for p in places:
-        popup_html = f"<b>{p['name']}</b><br>{p['desc']}"
-        folium.Marker(
-            location=[p['lat'], p['lon']],
-            popup=folium.Popup(popup_html, max_width=300),
-            tooltip=p['name'],
-            icon=folium.Icon(color="blue", icon="info-sign")
-        ).add_to(m)
-
-# Folium 지도 렌더링 (streamlit-folium)
+# Folium 지도 렌더링
 st_data = st_folium(m, width=1100, height=650)
 
-# 간단한 출처/설명
+# 지도 아래 설명
 st.markdown("---")
-st.markdown("**참고:** 명소 정보는 관광 안내/여행 가이드와 공공 자료를 참고하여 선정했습니다.")
+st.subheader("📖 명소별 상세 설명")
+for i, p in enumerate(places, start=1):
+    st.markdown(f"""
+    **{i}. {p['name']}**  
+    {p['desc']}  
+    🚇 **가장 가까운 지하철역:** {p['nearest_station']}
+    """)
