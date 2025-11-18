@@ -4,7 +4,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="지하철 분석", layout="wide")
 
-st.title("🚇 서울 지하철 승하차 분석 (2055년 10월)")
+st.title("🚇 서울 지하철 승하차 분석 (2025년 10월)")
 
 # 📌 CSV 로드 (프로젝트 최상위 폴더)
 @st.cache_data
