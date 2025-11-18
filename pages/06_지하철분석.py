@@ -6,39 +6,41 @@ st.set_page_config(page_title="지하철 분석", layout="wide")
 
 st.title("🚇 서울 지하철 승하차 분석 (2055년 10월)")
 
-# 📌 CSV 로드 (상위 폴더에서 읽기)
+# 📌 CSV 로드 (프로젝트 최상위 폴더)
 @st.cache_data
 def load_data():
-    return pd.read_csv("../subway.csv", encoding="cp949")
+    return pd.read_csv("subway.csv", encoding="cp949")   # 🔥 여기 고정!
 
 df = load_data()
 
-# 📌 날짜 선택
+# 날짜 포맷
 df["사용일자"] = df["사용일자"].astype(str)
+
+# 날짜 선택
 unique_dates = sorted(df["사용일자"].unique())
 selected_date = st.selectbox("날짜 선택", unique_dates)
 
-# 📌 호선 선택
+# 호선 선택
 unique_lines = sorted(df["노선명"].unique())
 selected_line = st.selectbox("호선 선택", unique_lines)
 
-# 📌 선택된 조건 필터링
+# 필터링
 filtered = df[(df["사용일자"] == selected_date) & (df["노선명"] == selected_line)].copy()
 
-# 승하차 합 컬럼 생성
+# 승하차 합
 filtered["총승하차"] = filtered["승차총승객수"] + filtered["하차총승객수"]
 
-# 📌 총승하차 기준 TOP 정렬
+# 정렬
 filtered = filtered.sort_values("총승하차", ascending=False)
 
-# 📌 색상 생성: 1등 = 빨강, 나머지는 파란색 → 연한 파랑 그라데이션
-colors = ["red"]
+# 색상 설정
+colors = ["red"]  # 1등 빨강
 others = px.colors.sequential.Blues[::-1]
 
 while len(colors) < len(filtered):
     colors.append(others[min(len(colors) - 1, len(others) - 1)])
 
-# 📌 Plotly Bar Chart
+# Plotly 그래프
 fig = px.bar(
     filtered,
     x="역명",
@@ -57,6 +59,5 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# 📌 데이터 테이블 표시
 st.subheader("📄 데이터 테이블")
 st.dataframe(filtered)
