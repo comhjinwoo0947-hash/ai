@@ -134,7 +134,7 @@ selected_district = st.selectbox(
 )
 
 if selected_district:
-    st.markdown(f"#### **{selected_district}**의 유명 음식점 TOP 3 (순위 무관)")
+    st.markdown(f"#### **{selected_district}**의 유명 음식점")
     
     # FAMOUS_RESTAURANTS 딕셔너리에서 해당 구의 음식점 목록을 가져옴
     restaurants = FAMOUS_RESTAURANTS.get(selected_district, ["정보를 찾을 수 없습니다."])
