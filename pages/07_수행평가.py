@@ -124,7 +124,7 @@ if not df_count.empty:
 
 
 # 2. 유명 맛집 선택 기능 추가
-st.markdown("### 🔍 자치구별 유명 음식점 보기")
+st.markdown("### 🔍 서울 자치구별 유명 음식점 보기")
 
 # 자치구 목록을 정렬하여 셀렉트 박스에 사용
 district_list = sorted(df_count['District'].unique().tolist())
