@@ -65,19 +65,25 @@ def create_plotly_chart(df):
         hover_data={"Rank": True, "Count": ":,"} 
     )
 
-    # 1등 막대(강남구) 색상만 빨간색으로 강제 변경
+    # 1등 막대(강남구) 색상만 빨간색으로 강제 변경 (오류 수정 로직 적용)
     top_district = df.iloc[0]['District']
     
     if top_district == '강남구':
-        # Plotly Express가 자동으로 생성한 색상 리스트를 가져와서
-        colors = fig.data[0]['marker']['color']
-        
-        # 첫 번째 항목 (1위)의 색상을 빨간색으로 변경
-        colors[0] = 'red'
-        
-        # 변경된 색상 리스트를 다시 적용
-        fig.update_traces(marker_color=colors, selector=dict(type='bar'))
-    
+        try:
+            # 1. 현재 Figure의 모든 막대 색상 리스트를 가져와서 파이썬 리스트로 변환
+            colors_list = list(fig.data[0].marker.color)
+            
+            # 2. 1위 항목(인덱스 0)의 색상을 'red'로 변경
+            if len(colors_list) > 0:
+                colors_list[0] = 'red'
+            
+            # 3. 변경된 색상 리스트를 Figure에 다시 적용
+            fig.update_traces(marker_color=colors_list, selector=dict(type='bar'))
+            
+        except AttributeError:
+             # 만약 .marker.color 속성에 문제가 생길 경우 대비 (예외 처리)
+             st.warning("경고: Plotly 그래프의 1위 막대 색상 변경에 실패했습니다. (내부 구조 문제)")
+
     # 축 레이블 한글 설정
     fig.update_xaxes(title_font=dict(size=14), tickangle=45)
     fig.update_yaxes(title_font=dict(size=14))
