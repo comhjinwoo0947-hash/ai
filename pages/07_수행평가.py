@@ -32,9 +32,7 @@ RESTAURANT_DATA = {
 @st.cache_data
 def load_data():
     """정의된 데이터를 DataFrame으로 변환합니다."""
-    # 딕셔너리를 Pandas DataFrame으로 변환
     df = pd.DataFrame(RESTAURANT_DATA)
-    # 'Count'를 정수형으로 변환
     df['Count'] = df['Count'].astype(int)
     return df
 
@@ -50,9 +48,9 @@ def create_plotly_chart(df):
     # Plotly Express를 사용하여 Count 값에 따른 그라데이션 적용
     fig = px.bar(
         df,
-        x='District',          # x축: 자치구
-        y='Count',             # y축: 일반음식점 수
-        color='Count',         # Count 값에 따라 색상(그라데이션) 적용
+        x='District',          
+        y='Count',             
+        color='Count',         
         color_continuous_scale=px.colors.sequential.Plasma_r, 
         title="서울시 자치구별 일반음식점 수 현황",
         labels={
@@ -61,7 +59,6 @@ def create_plotly_chart(df):
             "color": "음식점 수"
         },
         height=550,
-        # 툴팁에 순위와 포맷된 수량 표시
         hover_data={"Rank": True, "Count": ":,"} 
     )
 
@@ -81,14 +78,11 @@ def create_plotly_chart(df):
             fig.update_traces(marker_color=colors_list, selector=dict(type='bar'))
             
         except AttributeError:
-             # 만약 .marker.color 속성에 문제가 생길 경우 대비 (예외 처리)
              st.warning("경고: Plotly 그래프의 1위 막대 색상 변경에 실패했습니다. (내부 구조 문제)")
 
-    # 축 레이블 한글 설정
+    # 축 레이블 및 툴팁 설정
     fig.update_xaxes(title_font=dict(size=14), tickangle=45)
     fig.update_yaxes(title_font=dict(size=14))
-    
-    # 툴팁 설정
     fig.update_traces(hovertemplate='<b>%{x}</b><br>음식점 수: %{y:,}개<extra></extra>')
 
     return fig
@@ -106,7 +100,36 @@ if not df.empty:
     fig = create_plotly_chart(df)
     st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown("### 📋 데이터 테이블")
-    st.dataframe(df, hide_index=True)
+    st.markdown("### 📋 데이터 테이블 - 가독성 개선 버전")
+    
+    # === [가독성 개선을 위한 스타일링 적용] ===
+    
+    # 1. 'Count' 컬럼에 천 단위 구분 기호 포맷 적용
+    # 2. 숫자 컬럼을 오른쪽 정렬하고, 홀수 행에 배경색(스트라이프) 적용
+    styled_df = df.style.format({
+        'Count': '{:,.0f}'.format  # 'Count' 컬럼을 천 단위 콤마로 포맷
+    }).set_properties(
+        subset=['Count'], **{'text-align': 'right'} 
+    ).set_table_styles([
+        # 홀수 행에 배경색 적용 (Streamlit의 기본 배경색과 대비되도록)
+        {'selector': 'tbody tr:nth-child(odd)', 'props': [('background-color', '#f0f2f6')]}
+    ])
+
+    # Streamlit에 스타일이 적용된 DataFrame 출력
+    st.dataframe(
+        styled_df, 
+        hide_index=True,
+        column_config={
+            # 컬럼 너비 및 표시명 설정 (가독성 향상)
+            "Rank": st.column_config.Column(width="small"),
+            "District": st.column_config.Column(width="medium"),
+            "Count": st.column_config.Column(
+                "일반음식점 수 (개)",
+                width="large",
+            )
+        }
+    )
+    
+    # ==================================
     
     st.caption("※ 데이터 출처: 서울시 상권분석서비스 기반 2024년 6월 현황")
