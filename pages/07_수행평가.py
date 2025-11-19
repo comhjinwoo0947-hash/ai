@@ -100,9 +100,8 @@ if not df.empty:
     fig = create_plotly_chart(df)
     st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown("### 📋 데이터 테이블 - 가독성 개선 버전")
-    
-    # === [가독성 개선을 위한 스타일링 적용] ===
+    # === [요청 사항 반영: 제목 변경 및 컬럼 너비 조정] ===
+    st.markdown("### 📋 데이터 테이블") # "가독성 개선 버전" 문구 삭제
     
     # 1. 'Count' 컬럼에 천 단위 구분 기호 포맷 적용
     # 2. 숫자 컬럼을 오른쪽 정렬하고, 홀수 행에 배경색(스트라이프) 적용
@@ -111,7 +110,6 @@ if not df.empty:
     }).set_properties(
         subset=['Count'], **{'text-align': 'right'} 
     ).set_table_styles([
-        # 홀수 행에 배경색 적용 (Streamlit의 기본 배경색과 대비되도록)
         {'selector': 'tbody tr:nth-child(odd)', 'props': [('background-color', '#f0f2f6')]}
     ])
 
@@ -120,8 +118,9 @@ if not df.empty:
         styled_df, 
         hide_index=True,
         column_config={
-            # 컬럼 너비 및 표시명 설정 (가독성 향상)
-            "Rank": st.column_config.Column(width="small"),
+            # Rank 컬럼 너비를 가장 좁게 설정 (very small)
+            "Rank": st.column_config.Column(width="tiny"), 
+            # 나머지 컬럼 너비 조정으로 상대적으로 넓게 표시
             "District": st.column_config.Column(width="medium"),
             "Count": st.column_config.Column(
                 "일반음식점 수 (개)",
@@ -130,6 +129,6 @@ if not df.empty:
         }
     )
     
-    # ==================================
+    # ==================================================
     
     st.caption("※ 데이터 출처: 서울시 상권분석서비스 기반 2024년 6월 현황")
